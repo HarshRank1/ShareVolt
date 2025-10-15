@@ -1,0 +1,60 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Migrations\20250925191153_init1.cs" />
+    <Compile Remove="Migrations\20250925191153_init1.Designer.cs" />
+    <Compile Remove="Migrations\20250927043450_init4.cs" />
+    <Compile Remove="Migrations\20250927043450_init4.Designer.cs" />
+    <Compile Remove="Migrations\20250927044347_init2.cs" />
+    <Compile Remove="Migrations\20250927044347_init2.Designer.cs" />
+    <Compile Remove="Migrations\20250927045141_Init1.cs" />
+    <Compile Remove="Migrations\20250927045141_Init1.Designer.cs" />
+    <Compile Remove="Migrations\20250927045300_Init2.cs" />
+    <Compile Remove="Migrations\20250927045300_Init2.Designer.cs" />
+    <Compile Remove="Migrations\20250927045334_Init3.cs" />
+    <Compile Remove="Migrations\20250927045334_Init3.Designer.cs" />
+    <Compile Remove="Migrations\20250927050027_Init1.cs" />
+    <Compile Remove="Migrations\20250927050027_Init1.Designer.cs" />
+    <Compile Remove="Migrations\20250927050147_Init2.cs" />
+    <Compile Remove="Migrations\20250927050147_Init2.Designer.cs" />
+    <Compile Remove="Migrations\20250927160210_init5.cs" />
+    <Compile Remove="Migrations\20250927160210_init5.Designer.cs" />
+    <Compile Remove="Migrations\20250928154822_init6.cs" />
+    <Compile Remove="Migrations\20250928154822_init6.Designer.cs" />
+    <Compile Remove="Migrations\20250929152714_init8.cs" />
+    <Compile Remove="Migrations\20250929152714_init8.Designer.cs" />
+    <Compile Remove="Migrations\20250929154408_init8.cs" />
+    <Compile Remove="Migrations\20250929154408_init8.Designer.cs" />
+    <Compile Remove="Migrations\20250929160434_init8.cs" />
+    <Compile Remove="Migrations\20250929160434_init8.Designer.cs" />
+    <Compile Remove="Migrations\20251003174706_init11.cs" />
+    <Compile Remove="Migrations\20251003174706_init11.Designer.cs" />
+    <Compile Remove="Migrations\20251003174913_init11.cs" />
+    <Compile Remove="Migrations\20251003174913_init11.Designer.cs" />
+    <Compile Remove="Migrations\20251003182237_init11.cs" />
+    <Compile Remove="Migrations\20251003182237_init11.Designer.cs" />
+    <Compile Remove="Migrations\20251003182909_init11.cs" />
+    <Compile Remove="Migrations\20251003182909_init11.Designer.cs" />
+    <Compile Remove="Migrations\20251004090250_init14.cs" />
+    <Compile Remove="Migrations\20251004090250_init14.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.32" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.14.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.5" />
+    <PackageReference Include="Razorpay" Version="3.3.2" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
+  </ItemGroup>
+
+</Project>

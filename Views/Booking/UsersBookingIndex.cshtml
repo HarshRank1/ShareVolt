@@ -1,0 +1,193 @@
+﻿@* @model IEnumerable<ShareVolt.ViewModels.BookingByUserListViewModel>
+@using System.Security.Claims
+
+@{
+    ViewData["Title"] = "UsersBookingIndex";
+}
+
+
+@{
+    var isAdminClaim = User.FindFirstValue("IsAdmin");
+    bool isAdmin = false;
+    if (!string.IsNullOrEmpty(isAdminClaim))
+    {
+        isAdmin = (isAdminClaim == "True");
+    }
+
+
+
+
+
+    var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    int currentUserId = 0;
+    if (!string.IsNullOrEmpty(userIdClaim))
+    {
+        currentUserId = int.Parse(userIdClaim);
+    }
+}
+
+<h1>Your Bookings</h1>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Arrival Time
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th>
+                Charger At
+            </th>
+            <th>
+                Hosted by
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            @if (!isAdmin && item.UserId != currentUserId)
+            {
+                <br />
+                <br />
+                <br />
+                <h1>Not Belongs to you...</h1>
+                return;
+            }
+            <td>
+                @Html.DisplayFor(modelItem => item.StartTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Status)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Charger.Location)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Charger.User.Name)
+            </td>
+            <td>
+
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> 
+                @if(item.Status == ShareVolt.Models.BookingStatus.Confirmed.ToString())
+                {
+                    <a asp-action="Delete" asp-route-id="@item.Id"> | Delete</a>
+                }
+            </td>
+        </tr>
+}
+    </tbody>
+</table> *@
+
+
+
+@model IEnumerable<ShareVolt.ViewModels.BookingByUserListViewModel>
+@using System.Security.Claims
+
+@{
+    ViewData["Title"] = "Your Bookings";
+
+    var isAdminClaim = User.FindFirstValue("IsAdmin");
+    bool isAdmin = !string.IsNullOrEmpty(isAdminClaim) && isAdminClaim == "True";
+
+    var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    int currentUserId = 0;
+    if (!string.IsNullOrEmpty(userIdClaim))
+    {
+        currentUserId = int.Parse(userIdClaim);
+    }
+}
+
+@if (Model == null || !Model.Any())
+{
+    <div class="text-center mt-5">
+        <h3 class="text-muted">📅 No Bookings Found</h3>
+        <p class="text-secondary">You have not made any bookings yet.</p>
+        <a asp-controller="Charger" asp-action="Index" class="btn btn-primary mt-3">🔌 Browse Chargers</a>
+    </div>
+}
+else
+{
+    <div class="container mt-4">
+        <h2 class="fw-bold mb-4">📅 Your Bookings</h2>
+
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-body p-0">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th> Arrival Time</th>
+                            <th> Status</th>
+                            <th>📍 Charger At</th>
+                            <th>👤 Hosted By</th>
+                            <th class="text-center"> Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            if (!isAdmin && item.UserId != currentUserId)
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center text-danger fw-bold py-4">
+                                        🚫 This booking does not belong to you
+                                    </td>
+                                </tr>
+                                break;
+                            }
+
+                            <tr>
+                                <td>@item.StartTime.ToString("dd MMM yyyy, hh:mm tt")</td>
+                                <td>
+                                    @switch (item.Status)
+                                    {
+                                        case "Confirmed":
+                                            <span class="badge bg-light"> Confirmed</span>
+                                            ;
+                                            break;
+                                        case "Pending":
+                                            <span class="badge bg-light"> Pending</span>
+                                            ;
+                                            break;
+                                        case "Completed":
+                                            <span class="badge bg-light">✔ Completed</span>
+                                            ;
+                                            break;
+                                        case "Cancelled":
+                                            <span class="badge bg-light"> Cancelled</span>
+                                            ;
+                                            break;
+                                        default:
+                                            <span class="badge bg-light">@item.Status</span>
+                                            ;
+                                            break;
+                                    }
+                                </td>
+                                <td>@item.Charger.Location</td>
+                                <td>@item.Charger.User.Name</td>
+                                <td class="text-center">
+                                    <div class="btn-group">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                                             Details
+                                        </a>
+                                        @if (item.Status == ShareVolt.Models.BookingStatus.Confirmed.ToString())
+                                        {
+                                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">
+                                                 Cancel
+                                            </a>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div
+        </div>
+    </div>
+    <a asp-controller="User" asp-action="Details" asp-route-id="@currentUserId" class="btn btn-outline-secondary px-4">Back </a>
+}

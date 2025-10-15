@@ -1,0 +1,172 @@
+﻿@* @model IEnumerable<ShareVolt.ViewModels.BookingByChargerListViewModel>  
+@using System.Security.Claims  
+@{  
+    ViewData["Title"] = "ChargersBookingIndex";  
+}  
+
+<h1>Bookings at Your Charger</h1>  
+
+@{  
+    var isAdminClaim = User.FindFirstValue("IsAdmin");  
+    bool isAdmin = false;  
+    if (!string.IsNullOrEmpty(isAdminClaim))  
+    {  
+        isAdmin = (isAdminClaim == "True");  
+    }  
+
+    var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);  
+    int currentUserId = 0;  
+    if (!string.IsNullOrEmpty(userIdClaim))  
+    {  
+        currentUserId = int.Parse(userIdClaim);  
+    }  
+}  
+
+
+
+@if (!isAdmin && !Model.Any(item => item.Charger.UserId == currentUserId))
+{
+    <h1>No Booking Found ...</h1>
+    return; // skip this row
+}
+
+
+<table class="table">  
+    <thead>  
+        <tr>  
+            <th>  
+                @Html.DisplayNameFor(model => model.First().StartTime)  
+            </th>  
+            <th>  
+                @Html.DisplayNameFor(model => model.First().EndTime)  
+            </th>  
+            <th>  
+                @Html.DisplayNameFor(model => model.First().HostEarnings)  
+            </th>  
+            <th>  
+                @Html.DisplayNameFor(model => model.First().Status)  
+            </th>  
+            <th>  
+                @Html.DisplayNameFor(model => model.First().User)  
+            </th>  
+            <th>  
+                @Html.DisplayNameFor(model => model.First().Charger)  
+            </th>  
+            <th></th>  
+        </tr>  
+    </thead>  
+    <tbody>  
+@foreach (var item in Model) {  
+        <tr>  
+            <td>  
+                @Html.DisplayFor(modelItem => item.StartTime)  
+            </td>  
+            <td>  
+                @Html.DisplayFor(modelItem => item.EndTime)  
+            </td>  
+            <td>  
+                @Html.DisplayFor(modelItem => item.HostEarnings)  
+            </td>  
+            <td>  
+                @Html.DisplayFor(modelItem => item.Status)  
+            </td>  
+            <td>  
+                @Html.DisplayFor(modelItem => item.User.Email)  
+            </td>  
+            <td>  
+                @Html.DisplayFor(modelItem => item.Charger.Location)  
+            </td>  
+            <td>  
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a>  
+            </td>  
+        </tr>  
+}  
+    </tbody>  
+</table> *@
+
+
+@model IEnumerable<ShareVolt.ViewModels.BookingByChargerListViewModel>
+@using System.Security.Claims
+
+@{
+    ViewData["Title"] = "Bookings at Your Charger";
+
+    var isAdminClaim = User.FindFirstValue("IsAdmin");
+    bool isAdmin = !string.IsNullOrEmpty(isAdminClaim) && isAdminClaim == "True";
+
+    var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    int currentUserId = !string.IsNullOrEmpty(userIdClaim) ? int.Parse(userIdClaim) : 0;
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4">📋 Bookings at Your Charger</h1>
+
+    @if (!isAdmin && !Model.Any(item => item.Charger.UserId == currentUserId))
+    {
+        <div class="alert alert-warning text-center">
+            ⚠️ No Bookings Found
+        </div>
+        return;
+    }
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                        <th>Earnings</th>
+                        <th>Status</th>
+                        <th>User</th>
+                        <th>Charger</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.StartTime.ToString("g")</td>
+                            <td>@item.EndTime.ToString("g")</td>
+                            <td>@item.HostEarnings ₹</td>
+                            <td>
+                                @switch (item.Status)
+                                {
+                                    case "Confirmed":
+                                        <span class="badge bg-light">✅ Confirmed</span>
+                                        ;
+                                        break;
+                                    case "Pending":
+                                        <span class="badge bg-light">⏳ Pending</span>
+                                        ;
+                                        break;
+                                    case "Completed":
+                                        <span class="badge bg-light">✔️ Completed</span>
+                                        ;
+                                        break;
+                                    case "Cancelled":
+                                        <span class="badge bg-light">❌ Cancelled</span>
+                                        ;
+                                        break;
+                                    default:
+                                        <span class="badge bg-light">@item.Status</span>
+                                        ;
+                                        break;
+                                }
+                            </td>
+                            <td>@item.User.Email</td>
+                            <td>@item.Charger.Location</td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                                    🔍 Details
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <a asp-controller="Charger" asp-action="UsersChargersIndex" asp-route-id="@currentUserId" class="btn btn-outline-secondary px-4">Back </a>
+</div>

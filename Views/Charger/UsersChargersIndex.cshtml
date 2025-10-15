@@ -1,0 +1,185 @@
+﻿@* @model IEnumerable<ShareVolt.Models.Charger>
+@using System.Security.Claims
+
+@{
+    ViewData["Title"] = "UsersChargersIndex";
+}
+
+<h1>Your Chargers</h1>
+
+
+
+
+@{
+    var isAdminClaim = User.FindFirstValue("IsAdmin");
+    bool isAdmin = false;
+    if (!string.IsNullOrEmpty(isAdminClaim))
+    {
+        isAdmin = (isAdminClaim == "True");
+    }
+
+
+
+
+
+    var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    int currentUserId = 0;
+    if (!string.IsNullOrEmpty(userIdClaim))
+    {
+        currentUserId = int.Parse(userIdClaim);
+    }
+}
+
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Location)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsAvailable)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ChargerIncome)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model) {
+
+            @if (!isAdmin && item.UserId != currentUserId)
+            {
+                <br />
+                <br />
+                <br />
+                <h1>Not Belongs to you...</h1>
+                return;
+            }        
+
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Location)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsAvailable)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ChargerIncome)
+                </td>
+                <td>
+                    @if (isAdmin) {
+                        <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                    }
+                    else {
+                        <a asp-action="Details" asp-route-id="@item.Id">Details | </a> 
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit | </a> 
+                        <a asp-action="Delete" asp-route-id="@item.Id">Remove Charger | </a> 
+                        <a asp-controller="Booking" asp-action="ChargersBookingIndex" asp-route-id="@item.Id">Booking for this charger</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+
+
+</table>
+
+ *@
+
+
+
+@model IEnumerable<ShareVolt.Models.Charger>
+@using System.Security.Claims
+
+@{
+    ViewData["Title"] = "Your Chargers";
+    var isAdminClaim = User.FindFirstValue("IsAdmin");
+    bool isAdmin = !string.IsNullOrEmpty(isAdminClaim) && isAdminClaim == "True";
+
+    var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    int currentUserId = 0;
+    if (!string.IsNullOrEmpty(userIdClaim))
+    {
+        currentUserId = int.Parse(userIdClaim);
+    }
+}
+
+@if (Model == null || !Model.Any())
+{
+    <div class="text-center mt-5">
+        <h3 class="text-muted"> No chargers found</h3>
+        <p class="text-secondary">You haven’t added any chargers yet.</p>
+        <a asp-action="Create" class="btn btn-primary mt-3">➕ Add New Charger</a>
+    </div>
+}
+else
+{
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="fw-bold"> Your Chargers</h2>
+            <a asp-action="Create" class="btn btn-success">➕ Add Charger</a>
+        </div>
+
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>📍 Location</th>
+                            <th> Availability</th>
+                            <th> Income</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            if (!isAdmin && item.UserId != currentUserId)
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center text-danger fw-bold py-4">
+                                        🚫 This charger does not belong to you
+                                    </td>
+                                </tr>
+                                break;
+                            }
+
+                            <tr>
+                                <td>@item.Location</td>
+                                <td>
+                                    @if (item.IsAvailable)
+                                    {
+                                        <span class="badge bg-light"> Available</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-light"> Not Available</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="fw-bold">₹ @item.ChargerIncome</span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary ">🔍 Details</a>
+
+                                        @if (!isAdmin)
+                                        {
+                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">✏️ Edit</a>
+                                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">🗑 Remove</a>
+                                            <a asp-controller="Booking" asp-action="ChargersBookingIndex" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">📅 Bookings</a>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <a asp-controller="User" asp-action="Details" asp-route-id="@currentUserId" class="btn btn-outline-secondary px-4">Back </a>
+}

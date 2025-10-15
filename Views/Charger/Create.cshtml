@@ -1,0 +1,242 @@
+﻿@* @model ShareVolt.Models.Charger
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Charger</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Location" class="control-label"></label>
+                <input asp-for="Location" class="form-control" />
+                <span asp-validation-for="Location" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Type" class="control-label"></label>
+                <select asp-for="Type" class="form-control"></select>
+                <span asp-validation-for="Type" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PricePerKWh" class="control-label"></label>
+                <input asp-for="PricePerKWh" class="form-control" />
+                <span asp-validation-for="PricePerKWh" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="IsAvailable" /> @Html.DisplayNameFor(model => model.IsAvailable)
+                </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserId" class="control-label"></label>
+                <select asp-for="UserId" class ="form-control" asp-items="ViewBag.UserId"></select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+} *@
+
+
+@* 
+@model ShareVolt.Models.Charger
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label>Location : </label>
+        <input asp-for="Location" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>District : </label>
+        <input asp-for="District" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>State : </label>
+        <input asp-for="State" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Country : </label>
+        <input asp-for="Country" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Google Map Link : </label>
+        <input asp-for="GoogleMapsUrl" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Charger Type : </label>
+        <select asp-for="Type" class="form-control" id="chargerType">
+            @foreach (var type in ViewBag.ChargerTypes)
+            {
+                <option value="@type">@type</option>
+            }
+        </select>
+    </div>
+
+
+
+    <div class="form-group">
+        <label>Speed</label>
+        <select asp-for="ChargerSpeed" class="form-control" id="speedDropdown"></select>
+    </div>
+
+
+    <div class="form-group">
+        <label>Price Per kWh : </label>
+        <select asp-for="PricePerKWh" class="form-control" id="priceDropdown"></select>
+    </div>
+
+    <div class="form-group">
+        <label>Charger is currently available : </label>
+        <input type="checkbox" asp-for="IsAvailable" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>
+
+@section Scripts {
+    <script>
+        const chargerTypeDropdown = document.getElementById("chargerType");
+        const priceDropdown = document.getElementById("priceDropdown");
+        const speedDropdown = document.getElementById("speedDropdown");
+
+        function loadMeta(type) {
+            fetch(`/Charger/GetChargerMeta?type=${type}`)
+                .then(res => res.json())
+                .then(meta => {
+                    // Populate price dropdown
+                    priceDropdown.innerHTML = "";
+                    for (let p = meta.minPrice; p <= meta.maxPrice; p++) {
+                        priceDropdown.innerHTML += `<option value="${p}">${p} ₹/kWh</option>`;
+                    }
+
+                    // Populate speed dropdown
+                    speedDropdown.innerHTML = "";
+                    for (let s = meta.minSpeed; s <= meta.maxSpeed; s += 5) {
+                        speedDropdown.innerHTML += `<option value="${s}">${s} kW</option>`;
+                    }
+                });
+        }
+
+        chargerTypeDropdown.addEventListener("change", e => loadMeta(e.target.value));
+
+        // Load default metadata for first selected type
+        window.onload = () => loadMeta(chargerTypeDropdown.value);
+    </script>
+} *@
+
+
+@model ShareVolt.Models.Charger
+
+<div class="container mt-4">
+    <div class="card shadow-lg border-0 rounded-3">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"> Add New Charger</h4>
+        </div>
+
+        <div class="card-body">
+            <form asp-action="Create" method="post" class="row g-3">
+
+                <div class="col-md-6">
+                    <label asp-for="Location" class="form-label fw-bold"></label>
+                    <input asp-for="Location" class="form-control" placeholder="Enter location" />
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="District" class="form-label fw-bold"></label>
+                    <input asp-for="District" class="form-control" placeholder="Enter district" />
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="State" class="form-label fw-bold"></label>
+                    <input asp-for="State" class="form-control" placeholder="Enter state" />
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Country" class="form-label fw-bold"></label>
+                    <input asp-for="Country" class="form-control" placeholder="Enter country" />
+                </div>
+
+                <div class="col-md-12">
+                    <label asp-for="GoogleMapsUrl" class="form-label fw-bold">Google Maps Link</label>
+                    <input asp-for="GoogleMapsUrl" class="form-control" placeholder="Paste Google Maps link" />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Charger Type</label>
+                    <select asp-for="Type" class="form-select" id="chargerType">
+                        @foreach (var type in ViewBag.ChargerTypes)
+                        {
+                            <option value="@type">@type</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Speed</label>
+                    <select asp-for="ChargerSpeed" class="form-select" id="speedDropdown"></select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Price Per kWh</label>
+                    <select asp-for="PricePerKWh" class="form-select" id="priceDropdown"></select>
+                </div>
+
+                <div class="col-md-6 d-flex align-items-center">
+                    <div class="form-check form-switch mt-3">
+                        <input asp-for="IsAvailable" class="form-check-input" type="checkbox" id="isAvailableSwitch">
+                        <label class="form-check-label fw-bold" for="isAvailableSwitch">Available</label>
+                    </div>
+                </div>
+
+                <div class="col-12 d-flex justify-content-between mt-4">
+                    <a asp-action="Index" class="btn btn-outline-secondary">⬅️ Back</a>
+                    <button type="submit" class="btn btn-success px-4"> Create Charger</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const chargerTypeDropdown = document.getElementById("chargerType");
+        const priceDropdown = document.getElementById("priceDropdown");
+        const speedDropdown = document.getElementById("speedDropdown");
+
+        function loadMeta(type) {
+            fetch(`/Charger/GetChargerMeta?type=${type}`)
+                .then(res => res.json())
+                .then(meta => {
+                    // Populate price dropdown
+                    priceDropdown.innerHTML = "";
+                    for (let p = meta.minPrice; p <= meta.maxPrice; p++) {
+                        priceDropdown.innerHTML += `<option value="${p}">${p} ₹/kWh</option>`;
+                    }
+
+                    // Populate speed dropdown
+                    speedDropdown.innerHTML = "";
+                    for (let s = meta.minSpeed; s <= meta.maxSpeed; s += 5) {
+                        speedDropdown.innerHTML += `<option value="${s}">${s} kW</option>`;
+                    }
+                });
+        }
+
+        chargerTypeDropdown.addEventListener("change", e => loadMeta(e.target.value));
+        window.onload = () => loadMeta(chargerTypeDropdown.value);
+    </script>
+}

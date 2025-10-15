@@ -1,0 +1,282 @@
+﻿@* 
+@model ShareVolt.Models.Charger
+@using System.Security.Claims
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+
+@{
+    var isAdminClaim = User.FindFirstValue("IsAdmin");
+    bool isAdmin = false;
+    if (!string.IsNullOrEmpty(isAdminClaim))
+    {
+        isAdmin = (isAdminClaim == "True");
+    }
+
+
+
+
+
+    var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    int currentUserId = 0;
+    if (!string.IsNullOrEmpty(userIdClaim))
+    {
+        currentUserId = int.Parse(userIdClaim);
+    }
+}
+
+@if (!isAdmin && Model.UserId != currentUserId)
+{
+    <br />
+    <br />
+    <br />
+    <h1>Not Belongs to you...</h1>
+    return;
+}
+
+<h1>Edit</h1>
+
+<form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+
+    
+
+    <div class="form-group">
+        <label>Location</label>
+        <input asp-for="Location" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>District : </label>
+        <input asp-for="District" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>State : </label>
+        <input asp-for="State" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Country : </label>
+        <input asp-for="Country" class="form-control" />
+    </div>
+
+
+    <div class="form-group">
+        <label>Google Map Link : </label>
+        <input asp-for="GoogleMapsUrl" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Charger Type</label>
+        
+        <select asp-for="Type" asp-items="new SelectList(ViewBag.ChargerTypes, Model.Type)" id="chargerType" class="form-control"></select>
+
+    </div>
+
+
+    <div class="form-group">
+        <label>Speed</label>
+        <select asp-for="ChargerSpeed" class="form-control" id="speedDropdown"></select>
+    </div>
+
+
+    <div class="form-group">
+        <label>Price Per kWh</label>
+        <select asp-for="PricePerKWh" class="form-control" id="priceDropdown"></select>
+    </div>
+
+    <div class="form-group">
+        <label>Available</label>
+        <input type="checkbox" asp-for="IsAvailable" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    @if(isAdmin)
+    {
+        <a asp-action="Index" class="btn btn-link">Back to List</a>    
+    }
+</form>
+
+@section Scripts {
+    <script>
+        const chargerTypeDropdown = document.getElementById("chargerType");
+        const priceDropdown = document.getElementById("priceDropdown");
+        const speedDropdown = document.getElementById("speedDropdown");
+
+        // current values to pre-select
+        const currentType = '@Model.Type';
+        // Price is numeric; output using invariant format so JS gets a proper number literal
+        const currentPrice = @Model.PricePerKWh.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        // Speed may not be on the Model; controller can pass it in ViewBag.CurrentSpeed (numeric). If not provided, it will be null.
+        //const currentSpeed = @(ViewBag.CurrentSpeed != null ? ViewBag.CurrentSpeed.ToString() : "null");
+        const currentSpeed = @Model.ChargerSpeed;
+
+        function loadMeta(type) {
+            fetch(`/Charger/GetChargerMeta?type=${encodeURIComponent(type)}`)
+                .then(res => {
+                    if (!res.ok) throw new Error("Network response was not ok");
+                    return res.json();
+                })
+                .then(meta => {
+                    // Populate price dropdown (minPrice..maxPrice)
+                    priceDropdown.innerHTML = "";
+                    for (let p = meta.minPrice; p <= meta.maxPrice; p++) {
+                        const isSelected = (currentPrice !== null && Number(currentPrice) === p) ? "selected" : "";
+                        priceDropdown.innerHTML += `<option value="${p}" ${isSelected}>${p} ₹/kWh</option>`;
+                    }
+
+                    // Populate speed dropdown (minSpeed..maxSpeed stepping by 5 like your create)
+                    speedDropdown.innerHTML = "";
+                    for (let s = meta.minSpeed; s <= meta.maxSpeed; s += 5) {
+                        const isSelected = (currentSpeed !== null && Number(currentSpeed) === s) ? "selected" : "";
+                        speedDropdown.innerHTML += `<option value="${s}" ${isSelected}>${s} kW</option>`;
+                    }
+                })
+                .catch(err => {
+                    console.error("Error loading charger meta:", err);
+                });
+        }
+
+        // when the type changes, reload allowed prices & speeds
+        chargerTypeDropdown.addEventListener("change", e => loadMeta(e.target.value));
+
+        // initialize on page load using the current type already selected by Razor
+        window.addEventListener("DOMContentLoaded", () => {
+            const initialType = chargerTypeDropdown.value || currentType;
+            if (initialType) loadMeta(initialType);
+        });
+    </script>
+} *@
+
+
+@model ShareVolt.Models.Charger
+@using System.Security.Claims
+
+@{
+    ViewData["Title"] = "Edit Charger";
+
+    var isAdminClaim = User.FindFirstValue("IsAdmin");
+    bool isAdmin = (!string.IsNullOrEmpty(isAdminClaim) && isAdminClaim == "True");
+
+    var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    int currentUserId = string.IsNullOrEmpty(userIdClaim) ? 0 : int.Parse(userIdClaim);
+}
+
+@if (!isAdmin && Model.UserId != currentUserId)
+{
+    <div class="container text-center my-5">
+        <div class="alert alert-danger shadow">
+            <h4 class="mb-0">⛔ Not Belongs to you...</h4>
+        </div>
+    </div>
+    return;
+}
+
+<div class="container mt-4">
+    <div class="card shadow-lg border-0 rounded-3">
+        <div class="card-header bg-warning text-dark">
+            <h4 class="mb-0">✏️ Edit Charger</h4>
+        </div>
+
+        <div class="card-body">
+            <form asp-action="Edit" method="post" class="row g-3">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+
+                <div class="col-md-6">
+                    <label asp-for="Location" class="form-label fw-bold"></label>
+                    <input asp-for="Location" class="form-control" placeholder="Enter location" />
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="District" class="form-label fw-bold"></label>
+                    <input asp-for="District" class="form-control" placeholder="Enter district" />
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="State" class="form-label fw-bold"></label>
+                    <input asp-for="State" class="form-control" placeholder="Enter state" />
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Country" class="form-label fw-bold"></label>
+                    <input asp-for="Country" class="form-control" placeholder="Enter country" />
+                </div>
+
+                <div class="col-md-12">
+                    <label asp-for="GoogleMapsUrl" class="form-label fw-bold">Google Maps Link</label>
+                    <input asp-for="GoogleMapsUrl" class="form-control" placeholder="Paste Google Maps link" />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Charger Type</label>
+                    <select asp-for="Type" asp-items="new SelectList(ViewBag.ChargerTypes, Model.Type)"
+                            id="chargerType" class="form-select"></select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Speed</label>
+                    <select asp-for="ChargerSpeed" class="form-select" id="speedDropdown"></select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Price Per kWh</label>
+                    <select asp-for="PricePerKWh" class="form-select" id="priceDropdown"></select>
+                </div>
+
+                <div class="col-md-6 d-flex align-items-center">
+                    <div class="form-check form-switch mt-3">
+                        <input asp-for="IsAvailable" class="form-check-input" type="checkbox" id="isAvailableSwitch">
+                        <label class="form-check-label fw-bold" for="isAvailableSwitch">Available</label>
+                    </div>
+                </div>
+
+                <div class="col-12 d-flex justify-content-between mt-4">
+                    <a asp-action="Index" class="btn btn-outline-secondary">⬅️ Back</a>
+                    <button type="submit" class="btn btn-success px-4">💾 Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const chargerTypeDropdown = document.getElementById("chargerType");
+        const priceDropdown = document.getElementById("priceDropdown");
+        const speedDropdown = document.getElementById("speedDropdown");
+
+        const currentType = '@Model.Type';
+        const currentPrice = @Model.PricePerKWh.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        const currentSpeed = @Model.ChargerSpeed;
+
+        function loadMeta(type) {
+            fetch(`/Charger/GetChargerMeta?type=${encodeURIComponent(type)}`)
+                .then(res => {
+                    if (!res.ok) throw new Error("Network response was not ok");
+                    return res.json();
+                })
+                .then(meta => {
+                    priceDropdown.innerHTML = "";
+                    for (let p = meta.minPrice; p <= meta.maxPrice; p++) {
+                        const isSelected = (Number(currentPrice) === p) ? "selected" : "";
+                        priceDropdown.innerHTML += `<option value="${p}" ${isSelected}>${p} ₹/kWh</option>`;
+                    }
+
+                    speedDropdown.innerHTML = "";
+                    for (let s = meta.minSpeed; s <= meta.maxSpeed; s += 5) {
+                        const isSelected = (Number(currentSpeed) === s) ? "selected" : "";
+                        speedDropdown.innerHTML += `<option value="${s}" ${isSelected}>${s} kW</option>`;
+                    }
+                })
+                .catch(err => console.error("Error loading charger meta:", err));
+        }
+
+        chargerTypeDropdown.addEventListener("change", e => loadMeta(e.target.value));
+        window.addEventListener("DOMContentLoaded", () => {
+            const initialType = chargerTypeDropdown.value || currentType;
+            if (initialType) loadMeta(initialType);
+        });
+    </script>
+}

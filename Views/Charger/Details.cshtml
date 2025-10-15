@@ -1,0 +1,233 @@
+﻿@* @model ShareVolt.Models.Charger
+@using System.Security.Claims
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+@{
+    var isAdminClaim = User.FindFirstValue("IsAdmin");
+    bool isAdmin = false;
+    if (!string.IsNullOrEmpty(isAdminClaim))
+    {
+        isAdmin = (isAdminClaim == "True");
+    }
+
+
+
+
+
+    var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    int currentUserId = 0;
+    if (!string.IsNullOrEmpty(userIdClaim))
+    {
+        currentUserId = int.Parse(userIdClaim);
+    }
+}
+
+
+<div>
+    <h4>Charger</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Location)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Location)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.District)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.District)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.State)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.State)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Country)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Country)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.GoogleMapsUrl)
+        </dt>
+        <dd class="col-sm-10">
+            @if (!string.IsNullOrEmpty(Model.GoogleMapsUrl))
+            {
+                <a href="@Model.GoogleMapsUrl" target="_blank">@Model.GoogleMapsUrl</a>
+            }
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Type)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Type)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ChargerSpeed)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ChargerSpeed)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.PricePerKWh)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.PricePerKWh)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.IsAvailable)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.IsAvailable)
+        </dd>
+
+        @if(currentUserId == Model.User.Id) {
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.ChargerIncome)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.ChargerIncome)
+            </dd>
+        }
+
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.User.Name)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.User.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.User.Email)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.User.Email)
+        </dd>
+    </dl>
+</div>
+<div>
+    @if (currentUserId == Model.User.Id)
+    {
+         <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> 
+    }
+    
+     | <a asp-action="Index">Back to List</a>
+
+    @if (Model.IsAvailable && currentUserId != Model.User.Id)
+    {
+
+        <a asp-controller="Booking" asp-action="Create" asp-route-id="@Model.Id" class="btn btn-primary">
+            Book
+        </a>
+    }
+</div> *@
+
+
+@model ShareVolt.Models.Charger
+@using System.Security.Claims
+
+@{
+    ViewData["Title"] = "Charger Details";
+    var isAdminClaim = User.FindFirstValue("IsAdmin");
+    bool isAdmin = !string.IsNullOrEmpty(isAdminClaim) && isAdminClaim == "True";
+
+    var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    int currentUserId = !string.IsNullOrEmpty(userIdClaim) ? int.Parse(userIdClaim) : 0;
+}
+
+<div class="container mt-4">
+    <div class="card shadow-lg border-0 rounded-3">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">⚡ Charger Details</h4>
+            <span class="badge @(Model.IsAvailable ? "bg-success" : "bg-danger")">
+                @(Model.IsAvailable ? "Available" : "Not Available")
+            </span>
+        </div>
+
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <strong>Location:</strong> @Model.Location
+                </div>
+                <div class="col-md-6">
+                    <strong>District:</strong> @Model.District
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <strong>State:</strong> @Model.State
+                </div>
+                <div class="col-md-6">
+                    <strong>Country:</strong> @Model.Country
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <strong>Google Maps:</strong>
+                    @if (!string.IsNullOrEmpty(Model.GoogleMapsUrl))
+                    {
+                        <a href="@Model.GoogleMapsUrl" target="_blank" class="btn btn-outline-info btn-sm">View on Map</a>
+                    }
+                </div>
+                <div class="col-md-6">
+                    <strong>Type:</strong> @Model.Type
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <strong>Speed:</strong> @Model.ChargerSpeed kW
+                </div>
+                <div class="col-md-6">
+                    <strong>Price / kWh:</strong> ₹@Model.PricePerKWh
+                </div>
+            </div>
+
+            @if (currentUserId == Model.User.Id)
+            {
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Charger Income:</strong> ₹@Model.ChargerIncome
+                    </div>
+                </div>
+            }
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <strong>Owner:</strong> @Model.User.Name
+                </div>
+                <div class="col-md-6">
+                    <strong>Email:</strong> @Model.User.Email
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer d-flex justify-content-between">
+            <div>
+                @if (currentUserId == Model.User.Id)
+                {
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">✏️ Edit</a>
+                }
+                <a asp-action="Index" class="btn btn-secondary">⬅️ Back to List</a>
+            </div>
+
+            @if (Model.IsAvailable && currentUserId != Model.User.Id)
+            {
+                <a asp-controller="Booking" asp-action="Create" asp-route-id="@Model.Id" class="btn btn-success">
+                    🚗 Book Now
+                </a>
+            }
+        </div>
+    </div>
+</div>

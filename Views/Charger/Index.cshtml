@@ -1,0 +1,293 @@
+﻿@* @model IEnumerable<ShareVolt.Models.Charger>
+
+@{
+    ViewData["Title"] = "Index";
+    Func<bool?, bool, string> selected = (val, target) => val.HasValue && val.Value == target ? "selected" : "";
+    var currentPage = (int)(ViewData["CurrentPage"] ?? 1);
+    var totalPages = (int)(ViewData["TotalPages"] ?? 1);
+}
+
+<h1>Explore Chargers</h1>
+
+<p>
+    <a asp-action="Create">Be Host</a>
+</p>
+
+<hr />
+
+<h4>Search & Filter Chargers</h4>
+<form asp-action="Index" method="get" class="mb-4">
+    <div class="row">
+        <div class="col-md-3">
+            <label>District</label>
+            <input type="text" name="searchDistrict" value="@ViewData["CurrentDistrict"]" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label>State</label>
+            <input type="text" name="searchState" value="@ViewData["CurrentState"]" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label>Country</label>
+            <input type="text" name="searchCountry" value="@ViewData["CurrentCountry"]" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label>Availability</label>
+            @{
+                var currentAvailability = ViewData["CurrentAvailability"] as bool?;
+            }
+            <select name="isAvailable" class="form-control">
+                <option value="">All</option>
+                <option value="true" selected="@(currentAvailability == true)">Available</option>
+                <option value="false" selected="@(currentAvailability == false)">Not Available</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group mt-3">
+        <input type="submit" value="Search" class="btn btn-primary" />
+        <a asp-action="Index" class="btn btn-secondary">Clear All Filters</a>
+    </div>
+</form>
+
+<hr />
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.Location)</th>
+            <th>@Html.DisplayNameFor(model => model.District)</th>
+            <th>@Html.DisplayNameFor(model => model.State)</th>
+            <th>@Html.DisplayNameFor(model => model.Country)</th>
+            <th>@Html.DisplayNameFor(model => model.Type)</th>
+            <th>Speed (kW)</th>
+            <th>Price/kWh</th>
+            <th>Available</th>
+            <th>Host Name</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (!Model.Any())
+        {
+            <tr>
+                <td colspan="10" class="text-center">No chargers found matching your criteria.</td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Location</td>
+                    <td>@item.District</td>
+                    <td>@item.State</td>
+                    <td>@item.Country</td>
+                    <td>@item.Type</td>
+                    <td>@item.ChargerSpeed</td>
+                    <td>@item.PricePerKWh</td>
+                    <td>@item.IsAvailable</td>
+                    <td>@item.User?.Name</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+<!-- Pagination -->
+@if (totalPages > 1)
+{
+    <nav>
+        <ul class="pagination">
+            @if (currentPage > 1)
+            {
+                <li class="page-item">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-page="@(currentPage - 1)"
+                       asp-route-searchDistrict="@ViewData["CurrentDistrict"]"
+                       asp-route-searchState="@ViewData["CurrentState"]"
+                       asp-route-searchCountry="@ViewData["CurrentCountry"]"
+                       asp-route-isAvailable="@ViewData["CurrentAvailability"]">
+                        Previous
+                    </a>
+                </li>
+            }
+
+            @for (int i = 1; i <= totalPages; i++)
+            {
+                <li class="page-item @(i == currentPage ? "active" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-page="@i"
+                       asp-route-searchDistrict="@ViewData["CurrentDistrict"]"
+                       asp-route-searchState="@ViewData["CurrentState"]"
+                       asp-route-searchCountry="@ViewData["CurrentCountry"]"
+                       asp-route-isAvailable="@ViewData["CurrentAvailability"]">
+                        @i
+                    </a>
+                </li>
+            }
+
+            @if (currentPage < totalPages)
+            {
+                <li class="page-item">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-page="@(currentPage + 1)"
+                       asp-route-searchDistrict="@ViewData["CurrentDistrict"]"
+                       asp-route-searchState="@ViewData["CurrentState"]"
+                       asp-route-searchCountry="@ViewData["CurrentCountry"]"
+                       asp-route-isAvailable="@ViewData["CurrentAvailability"]">
+                        Next
+                    </a>
+                </li>
+            }
+        </ul>
+    </nav>
+} *@
+
+
+@model IEnumerable<ShareVolt.Models.Charger>
+
+@{
+    ViewData["Title"] = "Explore Chargers";
+    var currentPage = (int)(ViewData["CurrentPage"] ?? 1);
+    var totalPages = (int)(ViewData["TotalPages"] ?? 1);
+    var currentAvailability = ViewData["CurrentAvailability"] as bool?;
+}
+
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        @* <h2 class="fw-bold">⚡Explore EV Chargers</h2> *@
+        <h2 class="fw-bold">Explore EV Chargers</h2>
+        <a asp-action="Create" class="btn btn-success rounded-pill">+ Be a Host</a>
+    </div>
+
+    <!-- Search Filters -->
+    <div class="card shadow-sm p-4 mb-4">
+        <h5 class="mb-3"> Find Your Charger</h5>
+        <form asp-action="Index" method="get">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <div class="form-floating">
+                        <input type="text" name="searchDistrict" value="@ViewData["CurrentDistrict"]" class="form-control" placeholder="District">
+                        <label>District</label>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-floating">
+                        <input type="text" name="searchState" value="@ViewData["CurrentState"]" class="form-control" placeholder="State">
+                        <label>State</label>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-floating">
+                        <input type="text" name="searchCountry" value="@ViewData["CurrentCountry"]" class="form-control" placeholder="Country">
+                        <label>Country</label>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-floating">
+                        <select name="isAvailable" class="form-select">
+                            <option value="">All</option>
+                            <option value="true" selected="@(currentAvailability == true)">Available</option>
+                            <option value="false" selected="@(currentAvailability == false)">Not Available</option>
+                        </select>
+                        <label>Availability</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-3 mt-2">
+                <div class="col-md-3">
+                    <div class="form-floating">
+                        @{
+                            var currentType = ViewData["CurrentChargerType"] as string;
+                        }
+                        <select name="searchChargerType" class="form-select">
+                            <option value="">All Types</option>
+                            <option value="AC1_Slow" selected="@(currentType == "AC1_Slow")">AC1 Slow</option>
+                            <option value="AC2_Fast" selected="@(currentType == "AC2_Fast")">AC2 Fast</option>
+                            <option value="DC" selected="@(currentType == "DC")">DC</option>
+                        </select>
+                        <label>Charger Type</label>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-3">
+                <button type="submit" class="btn btn-primary">Search</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Clear Filters</a>
+            </div>
+        </form>
+    </div>
+
+
+    <div class="row">
+        @if (!Model.Any())
+        {
+            <div class="col-12 text-center py-5">
+                <p class="text-muted fs-5">No chargers found matching your criteria 🚫</p>
+            </div>
+        }
+        else
+        {
+            @foreach (var item in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <img src="~/images/ShareVolt.png" class="card-img-top" alt="Charger image" style="height: 150px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold">@item.Location</h5>
+                            <p class="text-muted mb-1">
+                                @item.District, @item.State, @item.Country
+                            </p>
+                            <p class="mb-2">
+                                <span class="badge bg-lightfo">@item.Type</span>
+                                <span class="badge bg-light text-dark">@item.ChargerSpeed kW</span>
+                            </p>
+                            @* <p class="fw-bold text-success">₹ @item.PricePerKWh / kWh</p> *@
+                            <p class="fw-bold text-success">₹ @item.PricePerKWh.ToString("F2") / kWh</p>
+
+                            <span class="badge @(item.IsAvailable ? "bg-light" : "bg-light")">
+                                @(item.IsAvailable ? "✅ Available" : "❌ Not Available")
+                            </span>
+                            <p class="mt-2"><small>👤 Host: @item.User?.Name</small></p>
+                        </div>
+                        <div class="card-footer text-center">
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary w-100">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    @if (totalPages > 1)
+    {
+        <nav class="d-flex justify-content-center mt-4">
+            <ul class="pagination pagination-rounded">
+                @if (currentPage > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" asp-action="Index" asp-route-page="@(currentPage - 1)">Previous</a>
+                    </li>
+                }
+
+                @for (int i = 1; i <= totalPages; i++)
+                {
+                    <li class="page-item @(i == currentPage ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@i">@i</a>
+                    </li>
+                }
+
+                @if (currentPage < totalPages)
+                {
+                    <li class="page-item">
+                        <a class="page-link" asp-action="Index" asp-route-page="@(currentPage + 1)">Next</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>

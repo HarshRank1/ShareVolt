@@ -1,0 +1,161 @@
+﻿@* @model IEnumerable<ShareVolt.Models.Booking>
+@using System.Security.Claims
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+@{
+    var isAdminClaim = User.FindFirstValue("IsAdmin");
+    bool isAdmin = false;
+    if (!string.IsNullOrEmpty(isAdminClaim))
+    {
+        isAdmin = (isAdminClaim == "True");
+    }
+
+
+
+
+
+    var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    int currentUserId = 0;
+    if (!string.IsNullOrEmpty(userIdClaim))
+    {
+        currentUserId = int.Parse(userIdClaim);
+    }
+}
+
+@if (!isAdmin)
+{
+    <br />
+    <br />
+    <br />
+    <h1>Not Belongs to you...</h1>
+} else {
+
+<h1>ShareVolt Info</h1>
+<h4>Gross Bookings</h4>
+
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.StartTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Charger)
+            </th>
+            <th>
+                Host
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.StartTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Status)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Charger.Location)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Charger.User.Name)
+            </td>
+            <td>
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> 
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+} *@
+
+
+@model IEnumerable<ShareVolt.Models.Booking>
+@using System.Security.Claims
+
+@{
+    ViewData["Title"] = "Bookings Dashboard";
+
+    var isAdminClaim = User.FindFirstValue("IsAdmin");
+    bool isAdmin = (!string.IsNullOrEmpty(isAdminClaim) && isAdminClaim == "True");
+
+    var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    int currentUserId = (!string.IsNullOrEmpty(userIdClaim)) ? int.Parse(userIdClaim) : 0;
+}
+
+@if (!isAdmin)
+{
+    <div class="d-flex flex-column align-items-center justify-content-center mt-5">
+        <i class="bi bi-lock-fill text-danger display-3"></i>
+        <h2 class="text-danger mt-3">Access Denied</h2>
+        <p class="text-muted">This section is only available for Admins.</p>
+    </div>
+}
+else
+{
+    <div class="container mt-4">
+        <h2 class="mb-3 text-primary">
+            <i class="bi bi-bar-chart-fill"></i> ShareVolt Info
+        </h2>
+        <p class="text-muted">Overview of all gross bookings</p>
+
+        <div class="card shadow-lg">
+            <div class="card-body">
+                <table class="table table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>@Html.DisplayNameFor(model => model.StartTime)</th>
+                            <th>@Html.DisplayNameFor(model => model.Status)</th>
+                            <th>@Html.DisplayNameFor(model => model.Charger)</th>
+                            <th>Host</th>
+                            <th class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="fw-semibold">@item.StartTime.ToString("dd-MMM-yyyy hh:mm tt")</span>
+                                </td>
+                                <td>
+                                    @if (item.Status.ToString() == "Completed")
+                                    {
+                                        <span class="badge bg-success">Completed</span>
+                                    }
+                                    else if (item.Status.ToString() == "Cancelled")
+                                    {
+                                        <span class="badge bg-danger text-dark">Cancelled</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">@item.Status</span>
+                                    }
+                                </td>
+                                <td>@item.Charger.Location</td>
+                                <td>@item.Charger.User.Name</td>
+                                <td class="text-center">
+                                    <a asp-action="Details" asp-route-id="@item.Id"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}

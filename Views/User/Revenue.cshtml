@@ -1,0 +1,46 @@
+﻿@* @{
+    ViewData["Title"] = "Company Revenue";
+}
+
+<h1>Company Revenue</h1>
+
+<div class="card p-4 shadow">
+    <h2>Total Revenue Generated</h2>
+    <p class="fs-3 fw-bold text-success">₹ @ViewBag.Revenue</p>
+    <br /><br />
+    <h2>Company TurnOver</h2>
+    <p class="fs-3 fw-bold text-success">₹ @ViewBag.TurnOver</p>
+</div> *@
+
+
+@{
+    ViewData["Title"] = "Company Revenue";
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4 text-primary">
+        <i class="bi bi-currency-dollar"></i> Company Revenue Dashboard
+    </h1>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card shadow border-success h-100">
+                <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                    <i class="bi bi-graph-up-arrow display-4 text-success mb-3"></i>
+                    <h4 class="card-title">Total Revenue Generated</h4>
+                    <p class="fs-3 fw-bold text-success">₹ @ViewBag.Revenue</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow border-info h-100">
+                <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                    <i class="bi bi-stack display-4 text-info mb-3"></i>
+                    <h4 class="card-title">Company TurnOver</h4>
+                    <p class="fs-3 fw-bold text-info">₹ @ViewBag.TurnOver</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

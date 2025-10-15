@@ -1,0 +1,337 @@
+﻿@* 
+@model ShareVolt.ViewModels.BookingCreateViewModel
+@using System.Text.Json
+@using System.Text.Json.Serialization
+
+@{
+    ViewData["Title"] = "Create Booking";
+
+    var jsonOptions = new JsonSerializerOptions();
+    jsonOptions.Converters.Add(new JsonStringEnumConverter());
+    var batteryOptionsJson = JsonSerializer.Serialize(Model.BatteryOptions ?? new List<ShareVolt.Models.BatteryMeta>(), jsonOptions);
+}
+
+<h2>Create Booking</h2>
+
+<form id="bookingForm">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="form-group">
+        <label asp-for="Date"></label>
+        <input asp-for="Date" class="form-control" type="date"
+               min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+        <span asp-validation-for="Date" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="StartTime"></label>
+        <input asp-for="StartTime" class="form-control" type="time"
+               value="@Model.StartTime.ToString(@"hh\:mm")" />
+        <span asp-validation-for="StartTime" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="SizeType"></label>
+        <select asp-for="SizeType" id="sizeTypeDropdown" class="form-control">
+            <option value="">-- Select Size --</option>
+            @foreach (var s in Enum.GetValues(typeof(ShareVolt.Models.CarBatterySizeType)))
+            {
+                <option value="@s">@s</option>
+            }
+        </select>
+        <span asp-validation-for="SizeType" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="BatteryCapacity"></label>
+        <select asp-for="BatteryCapacity" id="batteryCapacityDropdown" class="form-control" disabled>
+            <option value="">-- Select Capacity --</option>
+        </select>
+        <span asp-validation-for="BatteryCapacity" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ExpectedBatteryPercentage"></label>
+        <input asp-for="ExpectedBatteryPercentage" class="form-control" type="number" min="0" max="99" />
+        <span asp-validation-for="ExpectedBatteryPercentage" class="text-danger"></span>
+    </div>
+
+    <input type="hidden" asp-for="ChargerId" />
+    <input type="hidden" asp-for="PricePerKwh" />
+
+    <button type="button" id="pay-button" class="btn btn-primary">Book & Pay</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // battery dropdown handling
+        var batteryOptions = @Html.Raw(batteryOptionsJson);
+        var initialBattery = "@Model.BatteryCapacity";
+
+        function loadBatteryCapacities(sizeType) {
+            var dropdown = $("#batteryCapacityDropdown");
+            dropdown.empty();
+            dropdown.append($('<option>', { value: '', text: '-- Select Capacity --' }));
+            dropdown.prop('disabled', true);
+
+            if (!sizeType) return;
+
+            var meta = batteryOptions.find(o => o.SizeType === sizeType);
+            if (!meta) {
+                meta = batteryOptions.find(o => String(o.SizeType) === String(sizeType) || Number(o.SizeType) === Number(sizeType));
+            }
+            if (!meta) return;
+
+            for (var i = meta.MinCapacity; i <= meta.MaxCapacity; i += (meta.Step || 5)) {
+                dropdown.append($('<option>', { value: i, text: i + ' kWh' }));
+            }
+            dropdown.prop('disabled', false);
+        }
+
+        $(function () {
+            loadBatteryCapacities($("#sizeTypeDropdown").val());
+            if (initialBattery && initialBattery !== '0') {
+                $("#batteryCapacityDropdown").val(initialBattery);
+            }
+            $("#sizeTypeDropdown").on("change", function () {
+                loadBatteryCapacities($(this).val());
+            });
+        });
+    </script>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        document.getElementById("pay-button").addEventListener("click", function () {
+            const form = document.getElementById("bookingForm");
+            const formData = new FormData(form);
+
+           //FormData i used for binding
+            fetch("/Booking/Create", {
+                method: "POST",
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.orderId) {
+                    alert("Booking failed. Please check your inputs.");
+                    return;
+                }
+
+                var options = {
+                    "key": data.key,
+                    "amount": data.amount,
+                    "currency": "INR",
+                    "order_id": data.orderId,
+                    "name": "ShareVolt",
+                    "description": "EV Charger Booking",
+                    "handler": function (response) {
+                        fetch("/Booking/VerifyPayment", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                bookingId: data.bookingId,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_signature: response.razorpay_signature
+                            })
+                        })
+                        .then(r => r.json())
+                        .then(result => {
+                            if (result.status === "success") {
+                                alert("Payment Successful!");
+                                window.location.href = "/Booking/UsersBookingIndex";
+                            } else {
+                                alert("Payment Verification Failed: " + result.message);
+                            }
+                        });
+                    },
+                    "prefill": {
+                        "name": "Test User",
+                        "email": "test@example.com",
+                        "contact": "9876543210"
+                    },
+                    "theme": { "color": "#3399cc" }
+                };
+                var rzp1 = new Razorpay(options);
+                rzp1.open();
+            });
+        });
+    </script>
+} *@
+
+
+@model ShareVolt.ViewModels.BookingCreateViewModel
+@using System.Text.Json
+@using System.Text.Json.Serialization
+
+@{
+    ViewData["Title"] = "Create Booking";
+
+    var jsonOptions = new JsonSerializerOptions();
+    jsonOptions.Converters.Add(new JsonStringEnumConverter());
+    var batteryOptionsJson = JsonSerializer.Serialize(Model.BatteryOptions ?? new List<ShareVolt.Models.BatteryMeta>(), jsonOptions);
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg rounded-3">
+                <div class="card-header bg-primary text-white text-center">
+                    <h3 class="mb-0">Create Booking</h3>
+                </div>
+                <div class="card-body p-4">
+                    <form id="bookingForm">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Date" class="form-label fw-bold"></label>
+                            <input asp-for="Date" class="form-control" type="date"
+                                   min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                            <span asp-validation-for="Date" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="StartTime" class="form-label fw-bold"></label>
+                            <input asp-for="StartTime" class="form-control" type="time"
+                                   value="@Model.StartTime.ToString(@"hh\:mm")" />
+                            <span asp-validation-for="StartTime" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="SizeType" class="form-label fw-bold"></label>
+                            <select asp-for="SizeType" id="sizeTypeDropdown" class="form-select">
+                                <option value="">-- Select Size --</option>
+                                @foreach (var s in Enum.GetValues(typeof(ShareVolt.Models.CarBatterySizeType)))
+                                {
+                                    <option value="@s">@s</option>
+                                }
+                            </select>
+                            <span asp-validation-for="SizeType" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="BatteryCapacity" class="form-label fw-bold"></label>
+                            <select asp-for="BatteryCapacity" id="batteryCapacityDropdown" class="form-select" disabled>
+                                <option value="">-- Select Capacity --</option>
+                            </select>
+                            <span asp-validation-for="BatteryCapacity" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ExpectedBatteryPercentage" class="form-label fw-bold"></label>
+                            <input asp-for="ExpectedBatteryPercentage" class="form-control" type="number" min="0" max="99" />
+                            <span asp-validation-for="ExpectedBatteryPercentage" class="text-danger small"></span>
+                        </div>
+
+                        <input type="hidden" asp-for="ChargerId" />
+                        <input type="hidden" asp-for="PricePerKwh" />
+
+                        <button type="button" id="pay-button" class="btn btn-success w-100 py-2">
+                            <i class="bi bi-lightning-charge"></i> Book & Pay
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // battery dropdown handling
+        var batteryOptions = @Html.Raw(batteryOptionsJson);
+        var initialBattery = "@Model.BatteryCapacity";
+
+        function loadBatteryCapacities(sizeType) {
+            var dropdown = $("#batteryCapacityDropdown");
+            dropdown.empty();
+            dropdown.append($('<option>', { value: '', text: '-- Select Capacity --' }));
+            dropdown.prop('disabled', true);
+
+            if (!sizeType) return;
+
+            var meta = batteryOptions.find(o => o.SizeType === sizeType);
+            if (!meta) {
+                meta = batteryOptions.find(o => String(o.SizeType) === String(sizeType) || Number(o.SizeType) === Number(sizeType));
+            }
+            if (!meta) return;
+
+            for (var i = meta.MinCapacity; i <= meta.MaxCapacity; i += (meta.Step || 5)) {
+                dropdown.append($('<option>', { value: i, text: i + ' kWh' }));
+            }
+            dropdown.prop('disabled', false);
+        }
+
+        $(function () {
+            loadBatteryCapacities($("#sizeTypeDropdown").val());
+            if (initialBattery && initialBattery !== '0') {
+                $("#batteryCapacityDropdown").val(initialBattery);
+            }
+            $("#sizeTypeDropdown").on("change", function () {
+                loadBatteryCapacities($(this).val());
+            });
+        });
+    </script>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        document.getElementById("pay-button").addEventListener("click", function () {
+            const form = document.getElementById("bookingForm");
+            const formData = new FormData(form);
+
+            fetch("/Booking/Create", {
+                method: "POST",
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.orderId) {
+                    alert("Booking failed. Please check your inputs.");
+                    return;
+                }
+
+                var options = {
+                    "key": data.key,
+                    "amount": data.amount,
+                    "currency": "INR",
+                    "order_id": data.orderId,
+                    "name": "ShareVolt",
+                    "description": "EV Charger Booking",
+                    "handler": function (response) {
+                        fetch("/Booking/VerifyPayment", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                bookingId: data.bookingId,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_signature: response.razorpay_signature
+                            })
+                        })
+                        .then(r => r.json())
+                        .then(result => {
+                            if (result.status === "success") {
+                                alert("Payment Successful!");
+                                window.location.href = "/Booking/UsersBookingIndex";
+                            } else {
+                                alert("Payment Verification Failed: " + result.message);
+                            }
+                        });
+                    },
+                    "prefill": {
+                        "name": "Test User",
+                        "email": "test@example.com",
+                        "contact": "9876543210"
+                    },
+                    "theme": { "color": "#3399cc" }
+                };
+                var rzp1 = new Razorpay(options);
+                rzp1.open();
+            });
+        });
+    </script>
+}

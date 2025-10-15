@@ -1,0 +1,153 @@
+﻿@* @model ShareVolt.Models.Charger
+@using System.Security.Claims
+@{
+    ViewData["Title"] = "Delete";
+}
+@{
+    var isAdminClaim = User.FindFirstValue("IsAdmin");
+    bool isAdmin = false;
+    if (!string.IsNullOrEmpty(isAdminClaim))
+    {
+        isAdmin = (isAdminClaim == "True");
+    }
+
+
+
+
+
+    var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    int currentUserId = 0;
+    if (!string.IsNullOrEmpty(userIdClaim))
+    {
+        currentUserId = int.Parse(userIdClaim);
+    }
+}
+
+@if (!isAdmin && Model.UserId != currentUserId)
+{
+    <br />
+    <br />
+    <br />
+    <h1>Not Belongs to you...</h1>
+    return;
+}
+<h1>Delete</h1>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>Charger</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Location)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Location)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Type)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Type)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.PricePerKWh)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.PricePerKWh)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.IsAvailable)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.IsAvailable)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.User)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.User.Email)
+        </dd class>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <a asp-action="UsersChargersIndex" asp-controller="Charger" asp-route-id="@currentUserId" >Back to List</a>
+    </form>
+</div> *@
+
+
+@model ShareVolt.Models.Charger
+@using System.Security.Claims
+
+@{
+    ViewData["Title"] = "Delete Charger";
+
+    var isAdminClaim = User.FindFirstValue("IsAdmin");
+    bool isAdmin = !string.IsNullOrEmpty(isAdminClaim) && isAdminClaim == "True";
+
+    var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    int currentUserId = !string.IsNullOrEmpty(userIdClaim) ? int.Parse(userIdClaim) : 0;
+}
+
+@if (!isAdmin && Model.UserId != currentUserId)
+{
+    <div class="text-center mt-5">
+        <h1 class="text-danger">🚫 Not Belongs to you...</h1>
+    </div>
+    return;
+}
+
+<div class="container mt-5">
+    <div class="card shadow border-0">
+        <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">⚠️ Confirm Remove</h4>
+     
+        </div>
+
+        <div class="card-body">
+            <h5 class="fw-bold text-danger">Are you sure you want to remove this charger?</h5>
+            <p class="text-muted">This action cannot be undone.</p>
+
+            <dl class="row mt-3">
+                <dt class="col-sm-3 fw-bold">📍 Location</dt>
+                <dd class="col-sm-9">@Model.Location</dd>
+
+                <dt class="col-sm-3 fw-bold">⚡ Type</dt>
+                <dd class="col-sm-9">@Model.Type</dd>
+
+                <dt class="col-sm-3 fw-bold">💰 Price per kWh</dt>
+                <dd class="col-sm-9">@Model.PricePerKWh ₹</dd>
+
+                <dt class="col-sm-3 fw-bold">✅ Availability</dt>
+                <dd class="col-sm-9">
+                    @if (Model.IsAvailable)
+                    {
+                        <span class="badge bg-light"> ✅ Available</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-light">❌ Not Available</span>
+                    }
+                </dd>
+
+                <dt class="col-sm-3 fw-bold">👤 Owner</dt>
+                <dd class="col-sm-9">@Model.User.Email</dd>
+            </dl>
+        </div>
+
+        <div class="card-footer text-center">
+            <form asp-action="Delete" class="d-inline">
+                <input type="hidden" asp-for="Id" />
+                <button type="submit" class="btn btn-danger px-4">
+                    🗑 Remove
+                </button>
+            </form>
+            <a asp-action="UsersChargersIndex" asp-controller="Charger" asp-route-id="@currentUserId"
+               class="btn btn-outline-secondary px-4 ms-2">
+                ↩ Back to List
+            </a>
+        </div>
+    </div>
+</div>
