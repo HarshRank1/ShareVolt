@@ -1,21 +1,35 @@
-Project Overview
-ShareVolt is solving a major problem for both the government and the public. It addresses the high cost of building electric vehicle (EV) charging infrastructure and provides an "anywhere, anytime" charging service for users.
+          ____________Project overview______________
+----->          ShareVolt is solving currently major problem of both goverment and people 
+          by solving problem of spending lots of money on electric vehicle charger infrastructure 
+          from government and providing anywhere-anytime service to users.
 
-ShareVolt is a platform that gives people access to find EV chargers during their journey or at their destination. It also benefits hosts by allowing them to earn income from the chargers they have installed at their homes or offices.
+----->          ShareVolt is a platform to give access to people to find their ev charger in between 
+          of journey or at destination, while gives benefits to host to get perks in form of income
+          of their  charger installed at their convenience like at home, office-space.
 
-On the technical side, each user is required to have an account to make a booking at a charger. Similarly, a host must create an account to list their charger on the platform.
+----->          Now jump toward technical part, 
+          Each user is required to have an account to make booking at respective charger
+          At same time Host also require to make an account to list their charger on platform.
 
-As a company, ShareVolt earns revenue by charging a certain percentage of the total bill from the user and also charges hosts to list their chargers on the platform.
+----->          Now ShareVolt as compnay earns by charging pirticular percentage of total billing 
+          from User, and charges Host to list their charger on platform.
 
-Users can pay ShareVolt through any payment gateway, debit card, or credit card. Hosts receive their earnings within the application itself.
+----->          User can pay to ShareVolt by any payment GateWays, debit or credit Card
+        And Host get their perks in Application itself.
 
-Future Features
-In the future, ShareVolt cannot rely on a software-based model alone. Currently, users pay at the time of booking.
+          ____________Features implemented______________
+----->          In future we as ShareVolt we can not go only based on Software based itself,
+        Currently as we does to charge user pays at a time of make booking.
 
-However, as we implement and launch at an industry level, we will need to incorporate hardware-based conditions. This will allow users to pay after their charging session is complete.
+        But as we go to implement or launch at industry level, then we to go based on hardware 
+        based conditions too.
+        User can also pays after charging gets completed.
 
-Setup Instructions
-This project can run on an IIS Server and uses SQL Server Management Studio for database management.
+          ____________Setup Instructions______________
+----->          This project can run on IIS Server
+          and uses SQL SERVER Management Studio as Database Managemnet.
 
-Team Members and Individual Contributions
-This project was completed by me alone, so all features were implemented by me.
+
+
+
+
