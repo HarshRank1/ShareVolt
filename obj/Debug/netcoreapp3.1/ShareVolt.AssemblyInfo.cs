@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ShareVolt")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+79f00178f51f26d1a53f3e26adf7f0d3e7f73dac")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+de67cb387a555e5ef163a352a2ff4b697c323ebd")]
 [assembly: System.Reflection.AssemblyProductAttribute("ShareVolt")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ShareVolt")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
